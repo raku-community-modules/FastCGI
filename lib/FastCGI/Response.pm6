@@ -10,7 +10,7 @@ has $.connection;
 method send ($response-data)
 {
   my $http_message;
-  if ($.connection.parent.PSGI)
+  if $.connection.parent.PSGI
   {
     my $code = $response-data[0];
     my $message = get_http_status_msg($code);
@@ -27,4 +27,7 @@ method send ($response-data)
     $http_message = $response-data;
   }
   ## TODO: build and send the output records here.
+
+  return self;
 }
+

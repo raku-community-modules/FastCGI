@@ -12,11 +12,11 @@ has $.err = FastCGI::Errors.new;
 
 method request ()
 {
-  FastCGI::Request(:connection(self)).parse;
+  FastCGI::Request.new(:connection(self)).parse;
 }
 
 method send ($output)
 {
-  FastCGI::Response(:connection(self)).send($output);
+  FastCGI::Response.new(:connection(self)).send($output);
 }
 
