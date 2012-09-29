@@ -1,0 +1,7 @@
+{
+  "name"        : "FastCGI",
+  "version"     : "*",
+  "description" : "A FastCGI library for Perl 6",
+  "depends"     : [ "HTTP::Status" ],
+  "source-url"  : "git://github.com/supernovus/FastCGI.git"
+}
