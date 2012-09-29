@@ -4,7 +4,7 @@ class FastCGI;
 
 use FastCGI::Connection;
 
-has Int $.port = 9090;
+has Int $.port = 9119;
 has Str $.addr = 'localhost';
 has $.socket;
 
