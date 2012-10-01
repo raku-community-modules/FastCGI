@@ -2,12 +2,15 @@ use v6;
 
 module FastCGI::Protocol::Constants;
 
+#### Protocol constants.
+
 ## Common
 constant FCGI_LISTENSOCK_FILENO is export(:common) = 0;
 constant FCGI_MAX_CONTENT_LEN   is export(:common) = 0xFFFF;
 constant FCGI_HEADER_LEN        is export(:common) = 8;
 constant FCGI_VERSION_1         is export(:common) = 1;
 constant FCGI_NULL_REQUEST_ID   is export(:common) = 0;
+constant FCGI_SEGMENT_LEN       is export(:common) = 32768 - FCGI_HEADER_LEN;
 
 ## Type
 constant FCGI_BEGIN_REQUEST     is export(:type) = 1;
@@ -48,4 +51,56 @@ constant FCGI_Header_U           is export(:pack) = 'xCnnCx';
 constant FCGI_BeginRequestBody   is export(:pack) = 'nCx5';
 constant FCGI_EndRequestBody     is export(:pack) = 'NCx3';
 constant FCGI_UnknownTypeBody    is export(:pack) = 'Cx7';
+
+## Record names
+constant FCGI_RecordNames is export(:type) = 
+[
+  '',
+  'FCGI_BeginRequestRecord',
+  'FCGI_AbortRequestRecord',
+  'FCGI_EndRequestRecord',
+  'FCGI_ParamsRecord',
+  'FCGI_StdinRecord',
+  'FCGI_StdoutRecord',
+  'FCGI_StderrRecord',
+  'FCGI_DataRecord',
+  'FCGI_GetValuesRecord',
+  'FCGI_GetValuesResultRecord',
+  'FCGI_UnknownTypeRecord',
+];
+
+## Type names
+constant FCGI_TypeNames is export(:type) =
+[
+  '',
+  'FCGI_BEGIN_REQUEST',
+  'FCGI_ABORT_REQUEST',
+  'FCGI_END_REQUEST',
+  'FCGI_PARAMS',
+  'FCGI_STDIN',
+  'FCGI_STDOUT',
+  'FCGI_STDERR',
+  'FCGI_DATA',
+  'FCGI_GET_VALUES',
+  'FCGI_GET_VALUES_RESULT',
+  'FCGI_UNKNOWN_TYPE',
+];
+
+## Role names
+constant FCGI_RoleNames is export(:role) =
+[
+  '',
+  'FCGI_RESPONDER',
+  'FCGI_AUTHORIZER',
+  'FCGI_FILTER',
+];
+
+## Protocol status names
+constant FCGI_ProtocolStatusNames is export(:protocol_status) =
+[
+  'FCGI_REQUEST_COMPLETE',
+  'FCGI_CANT_MPX_CONN',
+  'FCGI_OVERLOADED',
+  'FCGI_UNKNOWN_ROLE',
+];
 

@@ -24,11 +24,17 @@ sub build_header
   );
 }
 
-sub parse_header (Buf $octets) is export
+sub parse_header (Buf $octets, Bool :$hash) is export
 {
   $octets.bytes >= 8 || throw ERRMSG_OCTETS, 'FCGI_Header';
   $octets[0] == FCGI_VERSION_1 || throw ERRMSG_VERSION, $octets.unpack('C');
-  return $octets.unpack(FCGI_Header_U);
+  my @vals = $octets.unpack(FCGI_Header_U);
+  if $hash
+  {
+    my %h = 'type', 'request-id', 'content-length', 'padding-length' Z @vals;
+    return %h;
+  }
+  return @vals;
 }
 
 sub build_begin_request_body ($role, $flags) is export
@@ -77,13 +83,13 @@ sub build_end_request_record
     build_end_request_body($app-status, $protocol-status));
 }
 
-sub build_unknown_type_record ($type)
+sub build_unknown_type_record ($type) is export
 {
   return build_record(FCGI_UNKNOWN_TYPE, FCGI_NULL_REQUEST_ID,
     build_unknown_type_body($type));
 }
 
-sub build_record ($type, $request-id, Buf $content?)
+sub build_record ($type, $request-id, Buf $content?) is export
 {
   my $content-length = $content.defined ?? $content.bytes !! 0;
   my $padding-length = (8 - ($content-length % 8)) % 8;
@@ -106,5 +112,86 @@ sub build_record ($type, $request-id, Buf $content?)
   return $res;
 }
 
+sub parse_record (Buf $octets, Bool :$hash) is export
+{
+  my ($type, $request-id, $content-length) = parse_header($octets);
+  $octets.bytes >= FCGI_HEADER_LEN + $content-length 
+    || throw ERRMSG_OCTETS, 'FCGI_Record';
+
+  my $content = $octets.subbuf(FCGI_HEADER_LEN, $content-length);
+
+  if $hash
+  {
+    return parse_record_body($type, $request-id, $content);
+  }
+  return $type, $request-id, $content;
+}
+
+sub parse_record_body ($type, $request-id, $content) is export
+{
+  my $content-length = $content.bytes;
+  $content-length <= FCGI_MAX_CONTENT_LEN
+    || throw ERRMSG_OCTETS_LE, 'content', FCGI_MAX_CONTENT_LEN;
+  
+  my %record = { :$type, :$request-id };
+  
+  given $type
+  {
+    when FCGI_BEGIN_REQUEST
+    {
+      ($request-id != FCGI_NULL_REQUEST_ID && $content-length == 8)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+      %record<role flags> = parse_begin_request_body($content);
+    }
+    when FCGI_ABORT_REQUEST
+    {
+      ($request-id != FCGI_NULL_REQUEST_ID && $content-length == 0)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+    }
+    when FCGI_END_REQUEST
+    {
+      ($request-id != FCGI_NULL_REQUEST_ID && $content-length == 8)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+      %record<app-status protocol-status> = parse_end_request_body($content);
+    }
+    when FCGI_PARAMS | FCGI_STDIN | FCGI_STDOUT | FCGI_STDERR | FCGI_DATA
+    {
+      ($request-id != FCGI_NULL_REQUEST_ID)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+      %record<content> = $content-length ?? $content !! Nil;
+    }
+    when FCGI_GET_VALUES | FCGI_GET_VALUES_RESULT
+    {
+      ($request-id == FCGI_NULL_REQUEST_ID)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+      %record<values> = parse_params($content);
+    }
+    when FCGI_UNKNOWN_TYPE
+    {
+      ($request-id == FCGI_NULL_REQUEST_ID && $content-length == 8)
+        || throw ERRMSG_MALFORMED, FCGI_RecordNames[$type];
+      %record<unknown-type> = parse_unknown_type_body($content);
+    }
+    default
+    {
+      %record<content> = $content if $content-length;
+    }
+  }
+  return %record;
+}
+
 ## TODO: finish me, please?
+
+sub build_stream ($type, $request-id, $content, Bool :$terminate)
+{
+}
+
+sub build_params (%params)
+{
+}
+
+sub parse_params (Buf $octets)
+{
+}
+
 
