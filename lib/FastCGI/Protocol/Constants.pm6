@@ -51,6 +51,7 @@ constant FCGI_Header_U           is export(:pack) = 'xCnnCx';
 constant FCGI_BeginRequestBody   is export(:pack) = 'nCx5';
 constant FCGI_EndRequestBody     is export(:pack) = 'NCx3';
 constant FCGI_UnknownTypeBody    is export(:pack) = 'Cx7';
+constant FCGI_GetRecordLength    is export(:pack) = 'xxxnCx';
 
 ## Record names
 constant FCGI_RecordNames is export(:type) = 

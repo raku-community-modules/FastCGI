@@ -34,10 +34,7 @@ method handle (&closure)
   $*ERR.say: "[{time}] FastCGI is ready and waiting.";
   while (my $connection = self.accept)
   {
-    my $request = $connection.request;
-    my %env = $request.env;
-    my $return = closure(%env);
-    $connection.send($return);
+    $connection.handle-requests(&closure);
     $connection.close;
   }
 }
