@@ -3,7 +3,6 @@ use v6;
 class FastCGI::Connection;
 
 use FastCGI::Request;
-use FastCGI::Response;
 use FastCGI::Errors;
 use FastCGI::Constants;
 use FastCGI::Protocol;
@@ -14,7 +13,7 @@ has $.parent;
 has $.err = FastCGI::Errors.new;
 has %!requests;
 
-method requests (&closure)
+method handle-requests (&closure)
 {
   while my Buf $record = $.socket.recv()
   {
@@ -39,7 +38,7 @@ method requests (&closure)
       }
       when FCGI_STDIN
       {
-        if ! %!requests.exists($id) { die "Invalud request id: $id"; }
+        if ! %!requests.exists($id) { die "Invalid request id: $id"; }
         my $req = %!requests{$id};
         if %record<content>
         {
@@ -48,15 +47,53 @@ method requests (&closure)
         else
         {
           my $return = &closure($req.env);
-          self.send($id, $return);
-          return;
+          self.send-response($id, $return);
+          %!requests.delete($id);
+          if ! $.parent.multiplex { return; }
         }
       }
+      when FCGI_GET_VALUES
+      {
+        if $id != FCGI_NULL_REQUEST_ID
+        {
+          die "Invalid management request.";
+        }
+        self.send-values(%record<values>);
+        if ! $.parent.multiplex { return; }
+      }
+      ## TODO: FCGI_UNKNOWN_TYPE handling.
     }
   }
 }
 
-method send ($request-id, $output)
+## Send management values.
+method send-values (%wanted)
+{
+  my %values;
+  for %wanted.keys -> $wanted
+  {
+    given $wanted
+    {
+      when FCGI_MAX_CONNS
+      {
+        %wanted{FCGI_MAX_CONNS} = $.parent.max-connections;
+      }
+      when FCGI_MAX_REQS
+      {
+        %wanted{FCGI_MAX_REQS} = $.parent.max-requests;
+      }
+      when FCGI_MPXS_CONNS
+      {
+        %wanted{FCGI_MPXS_CONNS} = $.parent.multiplex ?? 1 !! 0;
+      }
+    }
+  }
+  my $values = build_params(%fields);
+  my $res = build_record(FCGI_GET_VALUES_RESULT, FCGI_NULL_REQUEST_ID, $values);
+  $.socket.send($res);
+}
+
+method send-response ($request-id, $output)
 {
   my $http_message;
   if $.parent.PSGI
@@ -93,17 +130,17 @@ method send ($request-id, $output)
     }
   }
 
-  my $request;
+  my $res;
   if $.err.messages.elems > 0
   {
     my $stderr = $.err.messages.join.encode;
-    $request = build_end_request($request-id, $stdout, $stderr);
+    $res = build_end_request($request-id, $stdout, $stderr);
   }
   else
   {
-    $request = build_end_request($request-id, $stdout);
+    $res = build_end_request($request-id, $stdout);
   }
 
-  $.socket.send($request);
+  $.socket.send($res);
 }
 

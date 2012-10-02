@@ -10,6 +10,12 @@ has $.socket;
 
 has $.PSGI = True;   ## Set to False to use raw HTTP responses.
 
+## Settings for FastCGI management records.
+## You can override these per-application, but support is limited.
+has $.max-connections = 1;
+has $.max-requests = 1;
+has $.multiplex = False;
+
 method connect (:$port=$.port, :$addr=$.addr)
 {
   $.socket = IO::Socket::INET.new(

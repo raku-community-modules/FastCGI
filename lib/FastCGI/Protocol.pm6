@@ -262,12 +262,12 @@ sub parse_params (Buf $octets) is export
     {
       (1 <= $olen)
         || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
-      $len = unpack('C', $octets.subbuf($offset++));
+      $len = $octets.subbuf($offset++).unpack('C');
       $olen--;
       next if $len < 0x80;
       (3 <= $olen)
         || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
-      $len = unpack('N', (pack('C', $len & 0x7F) ~ $octets.subbuf($offset, 3)));
+      $len = (pack('C', $len & 0x7F) ~ $octets.subbuf($offset, 3)).unpack('N');
       $offset+=3;
       $olen-=3;
     }
@@ -276,7 +276,7 @@ sub parse_params (Buf $octets) is export
     my $key = $octets.subbuf($offset, $klen).decode;
     $offset += $klen;
     $olen -= $klen;
-    my $val = $octets.subbuf($offset, $vlen);
+    my $val = $octets.subbuf($offset, $vlen).decode;
     $offset += $vlen;
     $olen -= $vlen;
     %params{$key} = $val;
@@ -297,13 +297,13 @@ sub check_params (Buf $octets) is export
     {
       (($offset += 1) <= $len)
         || return False;
-      $len = unpack('C', $octets.subbuf($offset - 1));
+      $len = $octets.subbuf($offset - 1).unpack('C');
       next if $len < 0x80;
       (($offset += 3) <= $len)
         || return False;
-      $len = unpack('N', $octets.subbuf($offset - 4, 4)) & 0x7FFF_FFFF;
+      $len = $octets.subbuf($offset - 4, 4).unpack('N') & 0x7FFF_FFFF;
     }
-    ($offset += $klen + $vlen) <= $olen)
+    (($offset += $klen + $vlen) <= $olen)
       || return False;
   }
   return True;
