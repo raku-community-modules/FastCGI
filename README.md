@@ -11,6 +11,12 @@ implementation of the FastCGI protocol.
 
 I haven't done any extensive testing using input streams or error streams.
 
+## Requirements
+
+This requires a Perl 6 implementation that can export constants, and has
+the pack() and unpack() methods with at least 'C', 'n', 'N', and 'x' format
+codes supported.
+
 ## TODO
 
  * Test the STDIN and STDERR streams.
