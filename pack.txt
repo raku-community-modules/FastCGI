@@ -45,7 +45,7 @@ P - - ? ?
 u - - ? ?
 U - - ? ?
 w - - ? ?
-x - + ? ?
+x ~ + ? ? 2
 X - - ? ?
 @ - - ? ?
 . - - ? ?
@@ -61,3 +61,7 @@ Additional features (same syntax as above):
 Footnotes:
 
  1     Rakudo assumes little-endian for S and L, is this correct?
+ 2     A patch exists for 'x' in pack(): https://gist.github.com/3812996
+
+---
+
