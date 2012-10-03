@@ -4,11 +4,19 @@ A library for building web applications using FastCGI in Perl 6.
 Uses a PSGI-compliant interface by default, so you can use it with
 any PSGI-compliant frameworks, such as WWW::App.
 
-## NOTE
+## Status
 
-This is a work in progress, and currently is not implemented.
-When I'm done implementing this, I will likely go back and refactor
-my SCGI library to use a class structure closer to this.
+Basic functionality works, but is currently fairly slow using the pure-perl
+implementation of the FastCGI protocol.
+
+I haven't done any extensive testing using input streams or error streams.
+
+## TODO
+
+ * Test the STDIN and STDERR streams.
+ * Rename FastCGI::Protocol to FastCGI::Protocol:PP
+ * Add FastCGI::Protocol::NativeCall as a wrapper to libfcgi
+ * Write new FastCGI::Protocol wrapper that uses either PP or NativeCall
 
 ## Author
 
