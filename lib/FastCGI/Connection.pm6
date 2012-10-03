@@ -2,11 +2,12 @@ use v6;
 
 class FastCGI::Connection;
 
+use HTTP::Status;
 use FastCGI::Request;
 use FastCGI::Errors;
 use FastCGI::Constants;
 use FastCGI::Protocol;
-use FastCGI::Protocol::Constants;
+use FastCGI::Protocol::Constants :ALL;
 
 has $.socket;
 has $.parent;
@@ -76,24 +77,24 @@ method send-values (%wanted)
     {
       when FCGI_MAX_CONNS
       {
-        %wanted{FCGI_MAX_CONNS} = $.parent.max-connections;
+        %values{FCGI_MAX_CONNS} = $.parent.max-connections;
       }
       when FCGI_MAX_REQS
       {
-        %wanted{FCGI_MAX_REQS} = $.parent.max-requests;
+        %values{FCGI_MAX_REQS} = $.parent.max-requests;
       }
       when FCGI_MPXS_CONNS
       {
-        %wanted{FCGI_MPXS_CONNS} = $.parent.multiplex ?? 1 !! 0;
+        %values{FCGI_MPXS_CONNS} = $.parent.multiplex ?? 1 !! 0;
       }
     }
   }
-  my $values = build_params(%fields);
+  my $values = build_params(%values);
   my $res = build_record(FCGI_GET_VALUES_RESULT, FCGI_NULL_REQUEST_ID, $values);
   $.socket.send($res);
 }
 
-method send-response ($request-id, $output)
+method send-response ($request-id, $response-data)
 {
   my $http_message;
   if $.parent.PSGI
@@ -133,12 +134,16 @@ method send-response ($request-id, $output)
   my $res;
   if $.err.messages.elems > 0
   {
-    my $stderr = $.err.messages.join.encode;
-    $res = build_end_request($request-id, $stdout, $stderr);
+    my $errors = '';
+    for $.err.messages -> $emsg
+    {
+      $errors ~= $emsg.decode;
+    }
+    $res = build_end_request($request-id, $http_message, $errors);
   }
   else
   {
-    $res = build_end_request($request-id, $stdout);
+    $res = build_end_request($request-id, $http_message);
   }
 
   $.socket.send($res);
