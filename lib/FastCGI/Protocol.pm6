@@ -240,7 +240,7 @@ sub build_params (%params) is export
     for $key, $val -> $rec
     {
       my $len = $rec.defined ?? $rec.bytes !! 0;
-      $res ~= $len < 0x80 ?? pack('C', $len) !! pack('N', $len | 0x8000_0000);
+      $res ~= $len < 0x80 ?? pack('C', $len) !! pack('N', $len +| 0x8000_0000);
     }
     $res ~= $key;
     $res ~= $val if $val.defined;
@@ -267,7 +267,7 @@ sub parse_params (Buf $octets) is export
       next if $len < 0x80;
       (3 <= $olen)
         || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
-      $len = (pack('C', $len & 0x7F) ~ $octets.subbuf($offset, 3)).unpack('N');
+      $len = (pack('C', $len +& 0x7F) ~ $octets.subbuf($offset, 3)).unpack('N');
       $offset+=3;
       $olen-=3;
     }
@@ -301,7 +301,7 @@ sub check_params (Buf $octets) is export
       next if $len < 0x80;
       (($offset += 3) <= $len)
         || return False;
-      $len = $octets.subbuf($offset - 4, 4).unpack('N') & 0x7FFF_FFFF;
+      $len = $octets.subbuf($offset - 4, 4).unpack('N') +& 0x7FFF_FFFF;
     }
     (($offset += $klen + $vlen) <= $olen)
       || return False;

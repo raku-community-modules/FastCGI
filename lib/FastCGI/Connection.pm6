@@ -13,6 +13,7 @@ has $.socket;
 has $.parent;
 has $.err = FastCGI::Errors.new;
 has %!requests;
+has $!closed = False;
 
 method handle-requests (&closure)
 {
@@ -94,7 +95,7 @@ method send-values (%wanted)
   }
   my $values = build_params(%values);
   my $res = build_record(FCGI_GET_VALUES_RESULT, FCGI_NULL_REQUEST_ID, $values);
-  $.socket.send($res);
+  $.socket.write($res);
 }
 
 method send-response ($request-id, $response-data)
@@ -149,6 +150,17 @@ method send-response ($request-id, $response-data)
     $res = build_end_request($request-id, $http_message);
   }
 
-  $.socket.send($res);
+  $.socket.write($res);
+}
+
+method close
+{
+  $!socket.close if $!socket;
+  $!closed = True;
+}
+
+submethod DESTROY
+{
+  self.close unless $!closed;
 }
 

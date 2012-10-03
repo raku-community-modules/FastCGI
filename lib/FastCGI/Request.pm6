@@ -53,5 +53,6 @@ method env
     %env<psgi.nonblocking>  = False; ## Allow when NBIO.
     %env<psgi.streaming>    = False; ## Allow eventually?
   }
+  return %env;
 }
 
