@@ -18,5 +18,5 @@ my $handler = sub (%env)
   return [ $status, @headers, @body ];
 }
 
-$scgi.handle: $handler;
+$fcgi.handle: $handler;
 

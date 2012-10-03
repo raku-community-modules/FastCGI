@@ -16,11 +16,14 @@ has %!requests;
 
 method handle-requests (&closure)
 {
-  while my Buf $record = $.socket.recv()
+  loop
   {
+    my Buf $header = $.socket.read(FCGI_HEADER_LEN);
+    my ($type, $id, $content-length) = parse_header($header);
+    my Buf $record = $header ~ $.socket.read($content-length);
     my %record = parse_record($record);
-    my $id = %record<request-id>;
-    my $type = %record<type>;
+#    my $id = %record<request-id>;
+#    my $type = %record<type>;
     given $type
     {
       when FCGI_BEGIN_REQUEST

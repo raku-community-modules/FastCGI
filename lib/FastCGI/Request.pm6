@@ -10,19 +10,28 @@ has Buf $.input;
 has Int $.id;
 has Buf $!params;
 
-method new ($id, $connection)
-{
-  self.bless(*, :$id, :$connection);
-}
-
 method param (Buf $param)
 {
-  $!params ~= $param;
+  if $!params.defined
+  {
+    $!params ~= $param;
+  }
+  else
+  {
+    $!params = $param;
+  }
 }
 
 method in (Buf $stdin)
 {
-  $!input ~= $stdin;
+  if $!input.defined
+  {
+    $!input ~= $stdin;
+  }
+  else
+  {
+    $!input = $stdin;
+  }
 }
 
 method env

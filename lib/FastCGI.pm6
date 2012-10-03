@@ -18,7 +18,7 @@ has $.multiplex = False;
 
 method connect (:$port=$.port, :$addr=$.addr)
 {
-  $.socket = IO::Socket::INET.new(
+  $!socket = IO::Socket::INET.new(
     :localhost($addr), 
     :localport($port), 
     :listen(1)
@@ -32,7 +32,7 @@ method accept ()
     self.connect();
   }
   my $connection = $.socket.accept() or return;
-  FastCGI::Connection(:socket($connection), :parent(self));
+  FastCGI::Connection.new(:socket($connection), :parent(self));
 }
 
 method handle (&closure)
