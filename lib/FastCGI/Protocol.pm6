@@ -4,6 +4,7 @@ module FastCGI::Protocol;
 
 use FastCGI::Constants;
 use FastCGI::Protocol::Constants :ALL;
+#use FastCGI::Logger;
 
 constant ERRMSG_OCTETS    = 'Insufficient number of octets to parse %s';
 constant ERRMSG_MALFORMED = 'Malformed record %s';
@@ -250,37 +251,48 @@ sub build_params (%params) is export
 
 sub parse_params (Buf $octets) is export
 {
+#  my $log = FastCGI::Logger.new(:name<P::pp>);
   my %params;
   $octets.defined || return %params;
   my $klen = 0;
   my $vlen = 0;
   my $olen = $octets.bytes;
   my $offset = 0;
+#  $log.say: "Okay, let's process the params.";
   while $olen
   {
     for $klen, $vlen -> $len is rw
     {
+#      $log.say: "Determining length size.";
       (1 <= $olen)
         || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
-      $len = $octets.subbuf($offset++).unpack('C');
+      $len = $octets.subbuf($offset++, 1).unpack('C');
       $olen--;
+#      $log.say: "1 byte length: $len";
       next if $len < 0x80;
+#      $log.say: "Length uses 4 bytes";
       (3 <= $olen)
         || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
       $len = (pack('C', $len +& 0x7F) ~ $octets.subbuf($offset, 3)).unpack('N');
       $offset+=3;
       $olen-=3;
+#      $log.say: "4 byte length: $len";
     }
-    ($klen + $vlen <= $octets.subbuf($offset).bytes)
+#    $log.say: "Ensuring content is correct.";
+    ($klen + $vlen <= $olen)
       || throw ERRMSG_OCTETS, 'FCGI_NameValuePair';
+#    $log.say: "Getting key";
     my $key = $octets.subbuf($offset, $klen).decode;
     $offset += $klen;
     $olen -= $klen;
+#    $log.say: "Getting value";
     my $val = $octets.subbuf($offset, $vlen).decode;
     $offset += $vlen;
     $olen -= $vlen;
+#    $log.say: "Setting param";
     %params{$key} = $val;
   }
+#  $log.say: "Done processing parameters, returning.";
   return %params;
 }
 

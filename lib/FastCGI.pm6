@@ -44,20 +44,23 @@ method accept ()
 method handle (&closure)
 {
   my $log;
-  if $.debug
+  if $.log
   {
-    $log = FastCGI::Logger.new(:name<FastCGI>, :string($.fancy-log));
+    if $.debug
+    {
+      $log = FastCGI::Logger.new(:name<FastCGI>, :string($.fancy-log));
+    }
+    else
+    {
+      $log = FastCGI::Logger.new(:string($.fancy-log), :!duration);
+    }
+    $log.say: "Loaded and waiting for connections.";
   }
-  elsif $.log
-  {
-    $log = FastCGI::Logger.new(:string($.fancy-log), :!duration);
-  }
-  $log.say: "Loaded and waiting for connections." if $.log || $.debug;
   while (my $connection = self.accept)
   {
-    $log.say: "Received request." if $.log || $.debug;
+    $log.say: "Received request." if $.log;
     $connection.handle-requests(&closure);
-    $log.say: "Completed request." if $.log || $.debug;
+    $log.say: "Completed request." if $.log;
     $connection.close;
   }
 }

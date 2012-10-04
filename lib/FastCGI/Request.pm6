@@ -4,7 +4,7 @@ class FastCGI::Request;
 
 use FastCGI::Constants;
 use FastCGI::Protocol;
-use FastCGI::Logger;
+#use FastCGI::Logger;
 
 has $.connection;
 has Buf $.input;
@@ -37,13 +37,13 @@ method in (Buf $stdin)
 
 method env
 {
-  my $debug = $.connection.parent.debug;
-  my $log = FastCGI::Logger.new(:name<R::env>);
+#  my $debug = $.connection.parent.debug;
+#  my $log = FastCGI::Logger.new(:name<R::env>);
 
   ## First, parse the environment.
-  $log.say: "Going to parse params." if $debug;
+#  $log.say: "Going to parse params." if $debug;
   my %env = parse_params($!params);
-  $log.say: "Parsed params, adding extra meta data." if $debug;
+#  $log.say: "Parsed params, adding extra meta data." if $debug;
 
   ## Now add some meta data.
   %env<fastcgi.request> = self;
@@ -60,7 +60,7 @@ method env
     %env<psgi.streaming>    = False; ## Allow eventually?
   }
 
-  $log.say: "Added meta data, returning env." if $debug;
+#  $log.say: "Added meta data, returning env." if $debug;
 
   return %env;
 }
