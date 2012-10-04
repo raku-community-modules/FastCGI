@@ -8,6 +8,7 @@ use FastCGI::Errors;
 use FastCGI::Constants;
 use FastCGI::Protocol;
 use FastCGI::Protocol::Constants :ALL;
+use FastCGI::Logger;
 
 has $.socket;
 has $.parent;
@@ -17,53 +18,71 @@ has $!closed = False;
 
 method handle-requests (&closure)
 {
+  my $debug = $.parent.debug;
+  my $log = FastCGI::Logger.new(:name<C::handle>);
   loop
   {
+    $log.say: "Reading header." if $debug; 
     my Buf $header = $.socket.read(FCGI_HEADER_LEN);
+    $log.say: "Header read, parsing it." if $debug;
     my ($type, $id, $content-length) = parse_header($header);
-    my Buf $record = $header ~ $.socket.read($content-length);
-    my %record = parse_record($record);
-#    my $id = %record<request-id>;
-#    my $type = %record<type>;
+    $log.say: "Header parsed. Now reading record." if $debug;
+    my Buf $record = $.socket.read($content-length);
+    $log.say: "Record read, parsing it." if $debug;
+    my %record = parse_record_body($type, $id, $record);
+    $log.say: "Record parsed." if $debug;
+
     given $type
     {
       when FCGI_BEGIN_REQUEST
       {
+        $log.say: "Creating Request object." if $debug;
         if %!requests.exists($id) { die "Request of id $id already exists"; }
         %!requests{$id} = FastCGI::Request.new(:$id, :connection(self));
+        $log.say: "Object created." if $debug;
       }
       when FCGI_PARAMS
       {
+        $log.say: "Parsing param." if $debug;
         if ! %!requests.exists($id) { die "Invalid request id: $id"; }
         my $req = %!requests{$id};
         if %record<content>
         {
           $req.param(%record<content>);
         }
+        $log.say: "Param parsed." if $debug;
       }
       when FCGI_STDIN
       {
+        $log.say: "Parsing STDIN" if $debug;
         if ! %!requests.exists($id) { die "Invalid request id: $id"; }
         my $req = %!requests{$id};
         if %record<content>
         {
           $req.in(%record<content>);
+          $log.say: "Added content to STDIN." if $debug;
         }
         else
         {
-          my $return = &closure($req.env);
+          my %env = $req.env;
+          $log.say: "Build environment, sending to closure." if $debug;
+          my $return = &closure(%env);
+          $log.say: "Got response from closure, sending it." if $debug;
           self.send-response($id, $return);
           %!requests.delete($id);
+          $log.say: "Sent response." if $debug;
           if ! $.parent.multiplex { return; }
         }
       }
       when FCGI_GET_VALUES
       {
+        $log.say: "Handling GET_VALUES request." if $debug;
         if $id != FCGI_NULL_REQUEST_ID
         {
           die "Invalid management request.";
         }
         self.send-values(%record<values>);
+        $log.say: "Sent GET_VALUES_RESULT.";
         if ! $.parent.multiplex { return; }
       }
       ## TODO: FCGI_UNKNOWN_TYPE handling.
@@ -100,17 +119,22 @@ method send-values (%wanted)
 
 method send-response ($request-id, $response-data)
 {
+  my $debug = $.parent.debug;
+  my $log = FastCGI::Logger.new(:name<C::response>);
   my $http_message;
   if $.parent.PSGI
   {
+    $log.say: "Building status code" if $debug;
     my $code = $response-data[0];
     my $message = get_http_status_msg($code);
     my $headers = "Status: $code $message"~CRLF;
+    $log.say: "Status built, building headers." if $debug;
     for @($response-data[1]) -> $header
     {
       $headers ~= $header.key ~ ": " ~ $header.value ~ CRLF;
     }
     $http_message = ($headers~CRLF).encode;
+    $log.say: "Headers built, adding body." if $debug;
     for @($response-data[2]) -> $body
     {
       if $body ~~ Buf
@@ -138,6 +162,7 @@ method send-response ($request-id, $response-data)
   my $res;
   if $.err.messages.elems > 0
   {
+    $log.say: "Building response with error stream." if $debug;
     my $errors = '';
     for $.err.messages -> $emsg
     {
@@ -147,10 +172,13 @@ method send-response ($request-id, $response-data)
   }
   else
   {
+    $log.say: "Building response." if $debug;
     $res = build_end_request($request-id, $http_message);
   }
 
+  $log.say: "Response built, writing to socket." if $debug;
   $.socket.write($res);
+  $log.say: "Wrote response." if $debug;
 }
 
 method close

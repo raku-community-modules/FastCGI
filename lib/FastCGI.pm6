@@ -3,6 +3,7 @@ use v6;
 class FastCGI;
 
 use FastCGI::Connection;
+use FastCGI::Logger;
 
 has Int $.port = 9119;
 has Str $.addr = 'localhost';
@@ -15,6 +16,11 @@ has $.PSGI = True;   ## Set to False to use raw HTTP responses.
 has $.max-connections = 1;
 has $.max-requests = 1;
 has $.multiplex = False;
+
+## Settings for logging/debugging.
+has $.log   = True;
+has $.debug = False;
+has $.fancy-log = True;
 
 method connect (:$port=$.port, :$addr=$.addr)
 {
@@ -37,10 +43,21 @@ method accept ()
 
 method handle (&closure)
 {
-  $*ERR.say: "[{time}] FastCGI is ready and waiting.";
+  my $log;
+  if $.debug
+  {
+    $log = FastCGI::Logger.new(:name<FastCGI>, :string($.fancy-log));
+  }
+  elsif $.log
+  {
+    $log = FastCGI::Logger.new(:string($.fancy-log), :!duration);
+  }
+  $log.say: "Loaded and waiting for connections." if $.log || $.debug;
   while (my $connection = self.accept)
   {
+    $log.say: "Received request." if $.log || $.debug;
     $connection.handle-requests(&closure);
+    $log.say: "Completed request." if $.log || $.debug;
     $connection.close;
   }
 }
