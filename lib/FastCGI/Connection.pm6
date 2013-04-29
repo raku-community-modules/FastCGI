@@ -2,7 +2,7 @@ use v6;
 
 class FastCGI::Connection;
 
-use HTTP::Status;
+use PSGI;
 use FastCGI::Request;
 use FastCGI::Errors;
 use FastCGI::Constants;
@@ -124,27 +124,9 @@ method send-response ($request-id, $response-data)
   my $http_message;
   if $.parent.PSGI
   {
-#    $log.say: "Building status code" if $debug;
-    my $code = $response-data[0];
-    my $message = get_http_status_msg($code);
-    my $headers = "Status: $code $message"~CRLF;
-#    $log.say: "Status built, building headers." if $debug;
-    for @($response-data[1]) -> $header
-    {
-      $headers ~= $header.key ~ ": " ~ $header.value ~ CRLF;
-    }
-    $http_message = ($headers~CRLF).encode;
-#    $log.say: "Headers built, adding body." if $debug;
-    for @($response-data[2]) -> $body
-    {
-      if $body ~~ Buf
-      {
-        $http_message ~= $body;
-      }
-      else
-      {
-        $http_message ~= $body.Str.encode;
-      }
+    $http_message = encode-psgi-response($response-data);
+    if $http_message ~~ Str {
+      $http_message .= encode;
     }
   }
   else
