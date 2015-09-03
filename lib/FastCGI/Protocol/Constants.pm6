@@ -1,3 +1,5 @@
+use v6;
+
 unit module FastCGI::Protocol::Constants;
 
 #### Protocol constants.

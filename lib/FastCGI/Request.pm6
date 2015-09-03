@@ -1,3 +1,5 @@
+use v6;
+
 unit class FastCGI::Request;
 
 use FastCGI::Constants;
