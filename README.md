@@ -1,12 +1,12 @@
-# FastCGI for Perl 6 #
+# FastCGI for Raku #
 
-A library for building web applications using FastCGI in Perl 6.
+A library for building web applications using FastCGI in Raku.
 Uses a PSGI-compliant interface by default, so you can use it with
 any PSGI-compliant frameworks, such as WWW::App.
 
 ## Status
 
-Basic functionality works, but is currently fairly slow using the pure-perl
+Basic functionality works, but is currently fairly slow using the pure source
 implementation of the FastCGI protocol.
 
 I haven't done any extensive testing using input streams or error streams.
@@ -17,7 +17,7 @@ Currently the use of the handler() call is required.
 More advanced use, such as with the new SCGI is planned, but will require
 some significant refactoring.
 
-```perl
+```raku
 use FastCGI;
 
 my $fcgi = FastCGI.new( :port(9119) );
@@ -38,7 +38,7 @@ $fcgi.handle: $handler;
 
 ## Requirements
 
-This requires a Perl 6 implementation that can export constants, and has
+This requires a Raku implementation that can export constants, and has
 the pack() and unpack() methods with at least 'C', 'n', 'N', and 'x' format
 codes supported.
 
@@ -52,7 +52,7 @@ codes supported.
 
 ## Author
 
-This was build by Timothy Totten. You can find me on #perl6 with the nickname supernovus.
+This was build by Timothy Totten. You can find me on #raku with the nickname supernovus.
 
 ## License
 
