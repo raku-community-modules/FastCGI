@@ -2,7 +2,7 @@
   "perl"        : "6.*",
   "name"        : "FastCGI",
   "version"     : "0.9.0",
-  "description" : "A FastCGI library for Perl 6",
+  "description" : "A FastCGI library for Raku",
   "depends"     : [ "PSGI" ],
   "provides"    : {
     "FastCGI"                      : "lib/FastCGI.pm6",
@@ -14,5 +14,5 @@
     "FastCGI::Protocol"            : "lib/FastCGI/Protocol.pm6",
     "FastCGI::Protocol::Constants" : "lib/FastCGI/Protocol/Constants.pm6"
   },
-  "source-url"  : "git://github.com/supernovus/perl6-fastcgi.git"
+  "source-url"  : "git://github.com/raku-community-modules/FastCGI.git"
 }
