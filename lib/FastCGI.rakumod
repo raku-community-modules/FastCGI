@@ -1,4 +1,4 @@
-unit class FastCGI:ver<0.9.1>:auth<zef:raku-community-modules>;
+unit class FastCGI:ver<0.9.0>:auth<zef:raku-community-modules>;
 
 use FastCGI::Connection;
 use FastCGI::Logger;

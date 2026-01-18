@@ -1,6 +1,10 @@
 {
-  "auth": "zef:lizmat",
+  "auth": "zef:raku-community-modules",
   "authors": [
+    "Timothy Totten",
+    "Raku Community"
+  ],
+  "build-depends": [
   ],
   "depends": {
     "runtime": {
@@ -11,6 +15,7 @@
     }
   },
   "description": "A FastCGI library for Raku",
+  "license": "Artistic-2.0",
   "name": "FastCGI",
   "provides": {
     "FastCGI": "lib/FastCGI.rakumod",
@@ -23,10 +28,19 @@
     "FastCGI::Request": "lib/FastCGI/Request.rakumod"
   },
   "raku": "6.*",
+  "resources": [
+  ],
+  "source-url": "https://github.com/raku-community-modules/FastCGI.git",
   "support": {
-    "bugtracker": null,
+    "bugtracker": "https://github.com/raku-community-modules/FastCGI/issues",
     "email": "community@raku.org",
     "source": "https://github.com/raku-community-modules/FastCGI.git"
   },
+  "tags": [
+    "FASTCGI",
+    "WEB"
+  ],
+  "test-depends": [
+  ],
   "version": "0.9.0"
 }

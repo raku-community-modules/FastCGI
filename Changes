@@ -1,6 +1,8 @@
 Revision history for FastCGI
 
 {{$NEXT}}
+
+0.9.0  2026-01-18T18:47:01+01:00
     - First, refurbished version in Raku Community Modules
     - Added dependency on P5pack, rather than the experimental
       "pack" support from Raku, which is scheduled to be deprecated
