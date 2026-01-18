@@ -1,4 +1,3 @@
-Makefile
-blib
-*.swp
-**/.precomp
+.precomp/
+/FastCGI-*
+*.rakucov

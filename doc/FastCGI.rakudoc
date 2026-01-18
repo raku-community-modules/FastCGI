@@ -1,0 +1,75 @@
+=begin pod
+
+=head1 NAME
+
+FastCGI - a FastCGI library for Raku
+
+=head1 SYNOPSIS
+
+=begin code :lang<raku>
+use FastCGI;
+
+my $fcgi = FastCGI.new( :port(9119) );
+
+$fcgi.handle: &handler;
+=end code
+
+=head1 DESCRIPTION
+
+A library for building web applications using FastCGI in Raku.
+Uses a PSGI-compliant interface by default, so you can use it with
+any PSGI-compliant frameworks, such as WWW::App.
+
+=head2 Status
+
+Basic functionality works, but is currently fairly slow using the pure source
+implementation of the FastCGI protocol.
+
+I haven't done any extensive testing using input streams or error streams.
+
+=head2 Example
+
+Currently the use of the C<handler> call is required.
+More advanced use, such as with the new SCGI is planned, but will require
+some significant refactoring.
+
+=begin code :lang<raku>
+use FastCGI;
+
+my $fcgi = FastCGI.new( :port(9119) );
+
+my $handler = sub (%env) {
+    my $name = %env<QUERY_STRING> || 'World';
+    my $status = '200';
+    my @headers = 'Content-Type' => 'text/plain';
+    my @body = "Hello $name\n";;
+    [ $status, @headers, @body ]
+}
+
+$fcgi.handle: $handler;
+=end code
+
+=head2 TODO
+
+=item Test the STDIN and STDERR streams.
+=item Rename FastCGI::Protocol to FastCGI::Protocol:PP
+=item Add FastCGI::Protocol::NativeCall as a wrapper to libfcgi
+=item Write new FastCGI::Protocol wrapper that uses either PP or NativeCall
+=item Refactor the Connection/Request code to allow for custom request loops.
+
+=head1 AUTHOR
+
+Timothy Totten
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2013 - 2016 Timothy Totten
+
+Copyright 2017 - 2026 Raku Community
+
+This library is free software; you can redistribute it and/or modify
+it under the Artistic License 2.0.
+
+=end pod
+
+# vim: expandtab shiftwidth=4

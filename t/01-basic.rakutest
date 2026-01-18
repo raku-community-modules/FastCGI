@@ -1,5 +1,3 @@
-use lib 'lib';
-
 use Test;
 
 plan 8;
@@ -12,3 +10,5 @@ use-ok "FastCGI::Logger";
 use-ok "FastCGI::Request";
 use-ok "FastCGI::Protocol";
 use-ok "FastCGI::Protocol::Constants";
+
+# vim: expandtab shiftwidth=4

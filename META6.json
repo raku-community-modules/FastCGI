@@ -1,18 +1,32 @@
 {
-  "perl"        : "6.*",
-  "name"        : "FastCGI",
-  "version"     : "0.9.0",
-  "description" : "A FastCGI library for Raku",
-  "depends"     : [ "PSGI" ],
-  "provides"    : {
-    "FastCGI"                      : "lib/FastCGI.pm6",
-    "FastCGI::Connection"          : "lib/FastCGI/Connection.pm6",
-    "FastCGI::Constants"           : "lib/FastCGI/Constants.pm6",
-    "FastCGI::Errors"              : "lib/FastCGI/Errors.pm6",
-    "FastCGI::Logger"              : "lib/FastCGI/Logger.pm6",
-    "FastCGI::Request"             : "lib/FastCGI/Request.pm6",
-    "FastCGI::Protocol"            : "lib/FastCGI/Protocol.pm6",
-    "FastCGI::Protocol::Constants" : "lib/FastCGI/Protocol/Constants.pm6"
+  "auth": "zef:lizmat",
+  "authors": [
+  ],
+  "depends": {
+    "runtime": {
+      "requires": [
+        "PSGI:ver<1.2.2+>:auth<zef:raku-community-modules>",
+        "P5pack:ver<0.0.15>:auth<zef:lizmat>"
+      ]
+    }
   },
-  "source-url"  : "git://github.com/raku-community-modules/FastCGI.git"
+  "description": "A FastCGI library for Raku",
+  "name": "FastCGI",
+  "provides": {
+    "FastCGI": "lib/FastCGI.rakumod",
+    "FastCGI::Connection": "lib/FastCGI/Connection.rakumod",
+    "FastCGI::Constants": "lib/FastCGI/Constants.rakumod",
+    "FastCGI::Errors": "lib/FastCGI/Errors.rakumod",
+    "FastCGI::Logger": "lib/FastCGI/Logger.rakumod",
+    "FastCGI::Protocol": "lib/FastCGI/Protocol.rakumod",
+    "FastCGI::Protocol::Constants": "lib/FastCGI/Protocol/Constants.rakumod",
+    "FastCGI::Request": "lib/FastCGI/Request.rakumod"
+  },
+  "raku": "6.*",
+  "support": {
+    "bugtracker": null,
+    "email": "community@raku.org",
+    "source": "https://github.com/raku-community-modules/FastCGI.git"
+  },
+  "version": "0.9.0"
 }

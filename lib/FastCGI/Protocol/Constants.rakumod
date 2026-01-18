@@ -1,5 +1,3 @@
-use v6;
-
 unit module FastCGI::Protocol::Constants;
 
 #### Protocol constants.
@@ -54,8 +52,7 @@ constant FCGI_UnknownTypeBody    is export(:pack) = 'Cx7';
 constant FCGI_GetRecordLength    is export(:pack) = 'xxxnCx';
 
 ## Record names
-constant FCGI_RecordNames is export(:type) = 
-[
+constant FCGI_RecordNames is export(:type) = (
   '',
   'FCGI_BeginRequestRecord',
   'FCGI_AbortRequestRecord',
@@ -68,11 +65,10 @@ constant FCGI_RecordNames is export(:type) =
   'FCGI_GetValuesRecord',
   'FCGI_GetValuesResultRecord',
   'FCGI_UnknownTypeRecord',
-];
+);
 
 ## Type names
-constant FCGI_TypeNames is export(:type) =
-[
+constant FCGI_TypeNames is export(:type) = (
   '',
   'FCGI_BEGIN_REQUEST',
   'FCGI_ABORT_REQUEST',
@@ -85,23 +81,22 @@ constant FCGI_TypeNames is export(:type) =
   'FCGI_GET_VALUES',
   'FCGI_GET_VALUES_RESULT',
   'FCGI_UNKNOWN_TYPE',
-];
+);
 
 ## Role names
-constant FCGI_RoleNames is export(:role) =
-[
+constant FCGI_RoleNames is export(:role) = (
   '',
   'FCGI_RESPONDER',
   'FCGI_AUTHORIZER',
   'FCGI_FILTER',
-];
+);
 
 ## Protocol status names
-constant FCGI_ProtocolStatusNames is export(:protocol_status) =
-[
+constant FCGI_ProtocolStatusNames is export(:protocol_status) = (
   'FCGI_REQUEST_COMPLETE',
   'FCGI_CANT_MPX_CONN',
   'FCGI_OVERLOADED',
   'FCGI_UNKNOWN_ROLE',
-];
+);
 
+# vim: expandtab shiftwidth=4
